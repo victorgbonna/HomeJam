@@ -21,9 +21,9 @@ const getClasses = async ({conditions={}}) =>{
     return classes
 }
 //delete class
-const deleteClass= async (classId)=>{
+const deleteClass= async ({classId,adminId})=>{
     const result=await Class.deleteOne({
-        _id:classId
+        _id:classId, 'admin._id':adminId
     })
     return result
 }
@@ -55,12 +55,15 @@ const getUserClasses=async(userId)=>{
     return userClasses
 }
 
-const removeUserfromClass= async({userId, classId})=>{
+const removeUserfromClass= async({userId, classId,adminId})=>{
     // await getUser(userId)
     await getClass(classId)
     const isUserInClass= await Class.findOne({_id:classId,members:{ $elemMatch: { $eq: userId} }})
     if (!isUserInClass){
         throw 'User is not a member'
+    }
+    if(isUserInClass.admin._id!=adminId){
+        throw "You are forbidden"
     }
     console.log({isUserInClass})
     

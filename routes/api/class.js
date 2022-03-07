@@ -1,5 +1,5 @@
 const express = require('express')
-const { requireInstructor, requireAuth, requireCurrentUser, requireClassInstructor } = require('../../middleware/authMiddleware')
+const { requireInstructor, requireAuth, requireCurrentUser } = require('../../middleware/authMiddleware')
 const {joinClass, getClass, getClasses,getUsersInClass, 
       removeUserfromClass, leaveClass, 
       createClass, deleteClass} = require('../../modules/class/service')
@@ -19,10 +19,10 @@ router.post('/create',requireInstructor, async (req, res) => {
 })
 
 //join class, userId and classId as req body
-router.post('/join/:id',requireCurrentUser, async (req, res) => {
+router.post('/join/:classId',requireCurrentUser, async (req, res) => {
     try{
       await getUser(req.body.userId)
-      const classObj= await joinClass({classId:req.params.id,userId:req.body.userId})
+      const classObj= await joinClass({classId:req.params.classId,userId:req.body.userId})
       return res.json({classObj})  
     } 
     catch(e){
@@ -31,9 +31,9 @@ router.post('/join/:id',requireCurrentUser, async (req, res) => {
 })
 
 //get class 
-router.get('/getClass/:id', async (req, res) => {
+router.get('/getClass/:classId', async (req, res) => {
     try{
-      const classObj = await getClass(req.params.id)
+      const classObj = await getClass(req.params.classId)
       return res.json({classObj})  
     } 
     catch(e){
@@ -53,9 +53,9 @@ router.get('/getClasses/all', async (req, res) => {
     }
 })
 //get class members/users
-router.get('/getClass/:id/users', async (req, res) => {
+router.get('/getClass/:classId/users', async (req, res) => {
   try{
-    const classObjmembers = await getUsersInClass(req.params.id)
+    const classObjmembers = await getUsersInClass(req.params.classId)
     return res.json({classObjmembers})  
   } 
   catch(e){
@@ -63,10 +63,10 @@ router.get('/getClass/:id/users', async (req, res) => {
   }
 })
 //leave class [auth,reqcurrentuser]
-router.put('/leave/:id',requireCurrentUser, async (req, res) => {
+router.put('/leave/:classId',requireCurrentUser, async (req, res) => {
   try{
     await getUser(req.body.userId)
-    const classObj= await leaveClass({classId:req.params.id,userId:req.body.userId})
+    const classObj= await leaveClass({classId:req.params.classId,userId:req.body.userId})
     return res.json({classObj})  
   } 
   catch(e){
@@ -74,11 +74,15 @@ router.put('/leave/:id',requireCurrentUser, async (req, res) => {
   }
 })
 //remove user out of class [auth,requserbody]
-router.put('/:classId/removeUser/:userId', requireClassInstructor, async (req, res) => {
+router.put('/:classId/removeUser/:userId', requireInstructor, async (req, res) => {
   try{  
     const {classId,userId}= req.params
+    const adminId= req.body.adminId
+    if(adminId==userId){
+      throw 'Admin cannot leave class, rather delete the class instead'
+    }
     await getUser(userId)
-    const result= await removeUserfromClass({classId,userId})
+    const result= await removeUserfromClass({adminId,classId,userId})
     return res.json({result})  
   } 
   catch(e){
@@ -87,10 +91,11 @@ router.put('/:classId/removeUser/:userId', requireClassInstructor, async (req, r
   }
 })
 //delete class [auth,classAdmin]
-router.delete('/delete/:id',requireClassInstructor, async (req, res) => {
+router.delete('/delete/:classId',requireInstructor, async (req, res) => {
   try{
-    await getUser(req.body.adminId)
-    const result= await deleteClass(req.params.id)
+    const [classId, adminId]= [req.params.classId,req.body.adminId]
+    await getUser(adminId)
+    const result= await deleteClass({classId,adminId})
     return res.json({result})  
   } 
   catch(e){
