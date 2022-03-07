@@ -22,43 +22,102 @@
 - There will not be a problem If you have mongo db atlas installed. A collection would be created automatically by default. You can create a collection online via the mongodb -  atlas [Web site](https://cloud.mongodb.com/) if you don't have it installed.
 
 ### Map 
-###### This would entail every file and it's uses 
+###### This would entail every file adn folder and it's uses 
 - Index.js - the main js page. It imports everything's then runs the app. 
 - Config- both config and db js inside the config are for configurations and secret variables like the port, mongoose connection, token functionalities.
 - Requests.res - for testing the apis(install restcient extension on your vscode to make use of it )
 - Middleware - containing the token passing, verifies if the user is an admin so as to give him the authorization to make api calls
-- Api routes- this is where all the api endpoints are
-- Model js- handling the mongoose schema. 
-- Helper js- this contain the messageWrappers for validation and the calcoffset function for getting the iterable skips when getting the contacts
-- Service- holds all the api functionalities. 
-- test js - program testing 
+- Modules folder- contain the model and service file for the user and class module each
+- Modules folder/../service.js- holds all the functionalities that will be called from the api
+- Modules folder/../model.js- handling the mongoose schema 
+- Api routes- this is where all the api endpoints are 
 
-### API routes
-#### http://localhost:400/api/contact/add - post call to add user 
-##### This will not be authorised as you have to add the admin user to the database first. Req.body should be like 
+### Middlewares. There were 4 middleware in this application
+- requireAuth- for anthenticated users only
+- requireGuest-for non authenticated users only
+- requireCurrentUser-for a specific authenticated user
+- requireInstructor- for only instructor
+
+
+### API routes for user services
+
+#### http://localhost:400/api/user/register (requireGuest) - post call to register user  
+##### This will . Req.body should be like 
 ```javascript
 {
-  first_name, last_name, email, phone, country,
-  isAdmin (default to false, change to true if it is admin), job_title, company_name, birthday_day, birthday_month
+  name:string,
+  isAdmin:boolean,
+  email:email regex,
+  password:string
+  gender:any one of ['male' 'female','others']
 }
 ```
-#### http://localhost:400/api/contact/bulk/add- post call to add bulk of contacts (authorised to admin only)
-
-#### http://localhost:400/login - post call to get the authorization token. 
+#### http://localhost:400/api/user/login (requireGuest) - post call to login user  
+##### This will . Req.body should be like 
 ```javascript
-  Request body - {"email": adminEmail}
+{
+  email:,
+  password:
+}
 ```
-#### GET http://localhost:400/api/contact/all -get all contacts. You can pass a pagination query or condition. Example
-- http://localhost:400/api/contact/all?pageSize=3&pageNo=2&country=india is to get the 2nd page of 3 contacts with country field india. 
-- By default pageSize is 3 and pageNo is 1.
+#### http://localhost:400/api/user/logout (requireAuth) - get call to logout user.  
 
-#### Put http://localhost:400/api/contact/:id
-- Authorized api to update a user contact by passing the id as a req params 
+#### http://localhost:400/api/user/getUser/:userId - get call to fetch user details, password excluded.
 
-#### Delete http://localhost:400/api/contact/:id
-- Authorized api to delete a user contact by passing the id as a req params
+#### http://localhost:400/api/user/getUsers/all- get call to fetch all user details, password excluded.
 
-### N/B- You can test all apis with the requests.rest file after installing it to your vscode extension.
+#### http://localhost:400/api/user/getUser/:userId/classes- get call to fetch user classes.
+
+#### http://localhost:400/api/user/deleteUser/:userId(requireCurrentUser)- delete call to delete user.
+
+#### http://localhost:400/api/user/deleteUser/:userId(requireCurrentUser)- delete call to delete user.
+#### N/B: if an instructor deletes account, all the classes created by the instructor gets deleted too, so as to avoid db query error.
+
+### API routes for class services
+
+#### http://localhost:400/api/class/create(requireInstructor) -post call to create a class. 
+##### This will . Req.body should be like 
+```javascript
+{
+  name:nameofclass,
+  admin:objectid
+}
+```
+#### http://localhost:400/api/class/join/classId(requireCurrentUser) -post call to create a class. 
+##### This will . Req.body should be like 
+```javascript
+{
+  "userid":useridtoadd
+}
+```
+#### http://localhost:400/api/class/getClass/:classId- get call to fetch a class.
+#### http://localhost:400/api/class/getClass/:classId/users- get call to fetch users in a class.
+#### http://localhost:400/api/class/getClasses/all- get call to fetch all classes.
+
+#### http://localhost:400/api/class/leave/:classId(requireCurrentUser)- put call to leave class.
+#### Req.body should be like 
+```javascript
+{
+  "userid":useridtoleave
+}
+``` 
+#### http://localhost:400/api/class/leave/:classId(removeUser/:userId(requireInstructor)- put call to for an admin to remove a user.
+#### Req.body should be like 
+```javascript
+{
+  "adminId":adminId
+}
+``` 
+#### N/B: An admin cannot leave their class, rather delete the class instead. Only admin to the class can make perform this api operation.
+
+#### http://localhost:400/api/class/delete/:classId(requireInstructor)- delete call to delete class.
+#### Req.body should be like 
+```javascript
+{
+  "adminId":adminId
+}
+``` 
+#### N/B: An admin cannot leave their class, rather delete the class instead. Only admin to the class can make perform this api operation.
 
 ### Contact 
 - Email- victorgbonna@gmail.com
