@@ -1,5 +1,6 @@
 # HomeJamTask
 ## About The Project
+#### This is a class management API where students and instructors can perform class activities online.
 
 #### Frameworks, tools and libraries used 
 
@@ -39,7 +40,7 @@
 - requireInstructor- for only instructor
 
 
-### API routes for user services
+### API routes for user services. for the site link, replace the http://localhost:400/ to https://homejamm.herokuapp.com/
 
 #### http://localhost:400/api/user/register (requireGuest) - post call to register user  
 ##### This will . Req.body should be like 
@@ -123,5 +124,6 @@
 - Email- victorgbonna@gmail.com
 - Whatsapp - +234 8102603301
 - Linkedln - [https://www.linkedin.com/in/victor-ogbonna-5a3113230](https://www.linkedin.com/in/victor-ogbonna-5a3113230)
--  Project Link: https://github.com/victorgbonna/VouchDigitalTask
+-  Project Link: [https://github.com/victorgbonna/HomeJam](https://github.com/victorgbonna/HomeJam)
+-  Site Link: [https://homejamm.herokuapp.com/]([https://homejamm.herokuapp.com/])
 
