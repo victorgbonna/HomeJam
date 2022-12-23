@@ -21,5 +21,5 @@ app.use('/api/class', apiClassRoute)
 
 
 app.listen(config.port,()=>{
-    console.log(`Server running in ${config.nodeEnv} on port ${config.port} on db- ${config.mongoUrl}`);
+    console.log(`Server running in ${config.nodeEnv} on port ${config.port} on db`);
 })
